@@ -141,3 +141,115 @@ Useful descriptors may include:
 ### Lesson
 
 A single descriptor can reveal a trend, but usually cannot fully predict a complex molecular property.
+
+---
+
+## 6. Treating X as a Fixed Set of Molecular Descriptors
+
+### What happened
+
+`X` was initially interpreted as always meaning molecular properties such as MW, H-bonds, rotatable bonds, TPSA, and ring count.
+
+### Cause
+
+A specific descriptor representation was confused with the general Dataset definition of features.
+
+### Fix
+
+Use the general relationship:
+
+```text
+raw molecule / SMILES --featurizer--> X
+```
+
+Depending on the featurizer, `X` may contain descriptors, a fingerprint vector, graph features, or another molecular representation.
+
+### Lesson
+
+Before interpreting `X`, identify the featurizer or feature-generation method.
+
+---
+
+## 7. Confusing Dataset w With Chemical Weight or Weight Percentage
+
+### What happened
+
+`w` in a DeepChem Dataset was interpreted as weighing percentage.
+
+### Cause
+
+The symbol was interpreted using chemistry notation rather than DeepChem terminology.
+
+### Fix
+
+In DeepChem, `w` stores training weights. In a simple single-task dataset, valid labels commonly have weight 1.
+
+### Lesson
+
+Interpret variable names according to the API/library context before mapping them to chemistry meanings.
+
+---
+
+## 8. Reversing NumPy Shape Dimensions
+
+### What happened
+
+`X.shape = (10, 5)` was initially interpreted as 10 columns and 5 rows.
+
+### Cause
+
+The order of NumPy shape dimensions was reversed.
+
+### Fix
+
+For standard 2D ML arrays:
+
+```text
+X.shape = (samples, features)
+y.shape = (samples, tasks)
+```
+
+For example:
+
+```text
+X.shape = (500, 1024)
+y.shape = (500, 1)
+```
+
+means 500 molecules, 1024 features per molecule, and one prediction target.
+
+### Lesson
+
+Read the first dimension as the number of samples unless the data structure explicitly says otherwise.
+
+---
+
+## 9. Confusing Batch Size With Number of Batches
+
+### What happened
+
+For 1000 samples with `batch_size=128`, the number of batches was initially identified as 128.
+
+### Cause
+
+`batch_size` was confused with the number of batches in one epoch.
+
+### Fix
+
+Use:
+
+```text
+number of batches = ceil(number of samples / batch_size)
+```
+
+For 1000 samples:
+
+```text
+ceil(1000 / 128) = 8 batches
+```
+
+The first 7 batches contain 128 samples and the final batch contains 104.
+
+### Lesson
+
+`batch_size` means samples per batch. The number of batches depends on both dataset size and batch size.
